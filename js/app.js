@@ -105,9 +105,37 @@ function initShare() {
   });
 }
 
+function initPromptCopy() {
+  const promptEl = document.getElementById('cursorPrompt');
+  const copyBtn = document.getElementById('copyPromptBtn');
+  const toast = document.getElementById('promptCopyToast');
+  if (!promptEl || !copyBtn) return;
+
+  copyBtn.addEventListener('click', async () => {
+    const text = promptEl.textContent.trim();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+    }
+    toast.classList.remove('hidden');
+    copyBtn.textContent = '✓ 복사 완료!';
+    setTimeout(() => {
+      toast.classList.add('hidden');
+      copyBtn.textContent = '📋 프롬프트 복사하기';
+    }, 2500);
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   createStars();
   initSlides();
   initChecklist();
   initShare();
+  initPromptCopy();
 });
