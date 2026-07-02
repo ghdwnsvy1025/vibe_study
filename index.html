@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>바이브 코딩 — 사주 스터디를 위한 AI 코딩 입문</title>
+  <title>바이브 코딩 — AI 코딩 입문</title>
   <meta name="description" content="코딩을 처음 접하는 분들을 위한 바이브 코딩 가이드. Cursor AI, Node.js, Vercel을 쉽게 배워보세요." />
-  <meta property="og:title" content="바이브 코딩 — 사주 스터디를 위한 AI 코딩 입문" />
-  <meta property="og:description" content="AI에게 말로 시키면 웹사이트가 만들어집니다. 40대도 쉽게 따라할 수 있어요!" />
+  <meta property="og:title" content="바이브 코딩 — AI 코딩 입문" />
+  <meta property="og:description" content="AI에게 말로 시키면 웹사이트가 만들어집니다. 누구나 쉽게 따라할 수 있어요!" />
   <meta property="og:type" content="website" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,41 +31,37 @@
             serif: ['"Noto Serif KR"', 'serif'],
             sans: ['"Noto Sans KR"', 'sans-serif'],
           },
-          animation: {
-            'float': 'float 6s ease-in-out infinite',
-            'glow': 'glow 3s ease-in-out infinite',
-            'twinkle': 'twinkle 4s ease-in-out infinite',
-          },
-          keyframes: {
-            float: {
-              '0%, 100%': { transform: 'translateY(0px)' },
-              '50%': { transform: 'translateY(-12px)' },
-            },
-            glow: {
-              '0%, 100%': { opacity: '0.4' },
-              '50%': { opacity: '1' },
-            },
-            twinkle: {
-              '0%, 100%': { opacity: '0.2', transform: 'scale(1)' },
-              '50%': { opacity: '1', transform: 'scale(1.2)' },
-            },
-          }
         }
       }
     }
   </script>
   <style>
-    html { scroll-behavior: smooth; }
-    body {
-      background: #0c0a14;
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: #080610;
       color: #f5f0e8;
     }
-    .stars {
-      position: fixed;
-      inset: 0;
+    .gradient-text {
+      background: linear-gradient(135deg, #f0d78c 0%, #d4a853 50%, #c9a0dc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .glass {
+      background: rgba(45, 27, 78, 0.3);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 168, 83, 0.18);
+    }
+    .hanja-deco {
+      font-family: 'Noto Serif KR', serif;
+      color: rgba(212, 168, 83, 0.06);
+      font-weight: 700;
       pointer-events: none;
-      z-index: 0;
-      overflow: hidden;
+      user-select: none;
+      line-height: 1;
     }
     .star {
       position: absolute;
@@ -75,455 +71,428 @@
       border-radius: 50%;
       animation: twinkle 4s ease-in-out infinite;
     }
-    .gradient-text {
-      background: linear-gradient(135deg, #f0d78c 0%, #d4a853 50%, #c9a0dc 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .glass {
-      background: rgba(45, 27, 78, 0.25);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(212, 168, 83, 0.15);
-    }
-    .glass-strong {
-      background: rgba(22, 16, 31, 0.85);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(212, 168, 83, 0.2);
-    }
-    .section-reveal {
-      opacity: 0;
-      transform: translateY(30px);
-      transition: opacity 0.7s ease, transform 0.7s ease;
-    }
-    .section-reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .progress-dot.active {
-      background: #d4a853;
-      box-shadow: 0 0 12px rgba(212, 168, 83, 0.6);
-    }
-    .progress-dot.done {
-      background: #3d6b5e;
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.3); }
     }
     .typing-cursor::after {
       content: '|';
       animation: blink 1s step-end infinite;
       color: #d4a853;
     }
-    @keyframes blink {
-      50% { opacity: 0; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* PPT 뷰포트 — 16:9 가로 */
+    #ppt-root {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
     }
-    .hanja-bg {
+    #slide-viewport {
+      width: min(96vw, calc(92vh * 16 / 9));
+      height: min(92vh, calc(96vw * 9 / 16));
+      aspect-ratio: 16 / 9;
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(139, 41, 66, 0.25), 0 0 120px rgba(45, 27, 78, 0.4);
+      border: 1px solid rgba(212, 168, 83, 0.2);
+    }
+    .slide-bg {
       position: absolute;
+      inset: 0;
+      background: linear-gradient(145deg, #0c0a14 0%, #1a0a2e 40%, #16101f 100%);
+    }
+    .slide-bg::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 20%, rgba(139, 41, 66, 0.15) 0%, transparent 50%),
+                  radial-gradient(ellipse at 80% 80%, rgba(45, 27, 78, 0.3) 0%, transparent 50%);
+    }
+    #stars { position: absolute; inset: 0; pointer-events: none; }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 3.5% 5%;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(30px);
+      transition: opacity 0.45s ease, transform 0.45s ease, visibility 0.45s;
+      z-index: 1;
+    }
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0);
+      z-index: 2;
+    }
+    .slide.prev {
+      transform: translateX(-30px);
+    }
+
+    /* 슬라이드 내부 타이포 */
+    .slide-title {
       font-family: 'Noto Serif KR', serif;
-      color: rgba(212, 168, 83, 0.04);
-      font-size: 12rem;
+      font-size: clamp(1.4rem, 2.8vw, 2.2rem);
       font-weight: 700;
-      pointer-events: none;
-      user-select: none;
+      margin-bottom: 0.4em;
+    }
+    .slide-sub {
+      font-size: clamp(0.75rem, 1.2vw, 0.95rem);
+      color: #9ca3af;
+      margin-bottom: 1.2em;
+    }
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-height: 0;
+    }
+    .bullet-list li {
+      font-size: clamp(0.8rem, 1.35vw, 1.05rem);
+      line-height: 1.65;
+      color: #d1d5db;
+      margin-bottom: 0.5em;
+      padding-left: 1.2em;
+      position: relative;
+    }
+    .bullet-list li::before {
+      content: '◆';
+      position: absolute;
+      left: 0;
+      color: #d4a853;
+      font-size: 0.6em;
+      top: 0.35em;
+    }
+
+    /* 컨트롤 바 */
+    #controls {
+      width: min(96vw, calc(92vh * 16 / 9));
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+      padding: 0 4px;
+    }
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(212, 168, 83, 0.3);
+      background: rgba(22, 16, 31, 0.9);
+      color: #f0d78c;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: rgba(45, 27, 78, 0.6);
+      border-color: #d4a853;
+    }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .slide-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      cursor: pointer;
+      transition: all 0.25s;
+    }
+    .slide-dot.active {
+      background: #d4a853;
+      box-shadow: 0 0 8px rgba(212, 168, 83, 0.6);
+      transform: scale(1.2);
+    }
+    .slide-dot.done { background: #3d6b5e; }
+
+    /* 슬라이드 번호 뱃지 */
+    .slide-num {
+      position: absolute;
+      bottom: 3%;
+      right: 4%;
+      font-size: clamp(0.65rem, 1vw, 0.8rem);
+      color: rgba(212, 168, 83, 0.5);
+      font-family: 'Noto Serif KR', serif;
     }
   </style>
 </head>
-<body class="font-sans antialiased overflow-x-hidden">
+<body class="font-sans antialiased">
 
-  <!-- 별 배경 -->
-  <div class="stars" id="stars"></div>
+  <div id="ppt-root">
+    <div id="slide-viewport">
+      <div class="slide-bg"></div>
+      <div id="stars"></div>
 
-  <!-- 네비게이션 -->
-  <nav class="fixed top-0 left-0 right-0 z-50 glass-strong">
-    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-      <a href="#" class="font-serif text-lg font-semibold gradient-text">바이브 코딩</a>
-      <div class="hidden md:flex gap-6 text-sm text-gray-300">
-        <a href="#intro" class="hover:text-saju-goldLight transition">소개</a>
-        <a href="#tools" class="hover:text-saju-goldLight transition">도구 3가지</a>
-        <a href="#practice" class="hover:text-saju-goldLight transition">실습</a>
-        <a href="#share" class="hover:text-saju-goldLight transition">공유하기</a>
-      </div>
-      <button id="menuBtn" class="md:hidden text-saju-goldLight p-2" aria-label="메뉴">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-      </button>
-    </div>
-    <div id="mobileMenu" class="hidden md:hidden glass-strong border-t border-saju-gold/10 px-4 py-3 flex flex-col gap-3 text-sm">
-      <a href="#intro" class="py-2 hover:text-saju-goldLight">소개</a>
-      <a href="#tools" class="py-2 hover:text-saju-goldLight">도구 3가지</a>
-      <a href="#practice" class="py-2 hover:text-saju-goldLight">실습</a>
-      <a href="#share" class="py-2 hover:text-saju-goldLight">공유하기</a>
-    </div>
-  </nav>
-
-  <!-- 히어로 -->
-  <header class="relative min-h-screen flex items-center justify-center pt-20 px-4">
-    <span class="hanja-bg top-10 right-0 hidden lg:block">道</span>
-    <span class="hanja-bg bottom-20 left-0 hidden lg:block">氣</span>
-    <div class="relative z-10 text-center max-w-3xl mx-auto section-reveal">
-      <p class="text-saju-gold text-sm tracking-[0.3em] mb-4 uppercase">For 사주 스터디</p>
-      <h1 class="font-serif text-4xl md:text-6xl font-bold mb-6 leading-tight">
-        <span class="gradient-text">바이브 코딩</span>이란?
-      </h1>
-      <p class="text-lg md:text-xl text-gray-300 leading-relaxed mb-8">
-        코딩을 몰라도 괜찮아요.<br />
-        <strong class="text-saju-goldLight">말로 느낌을 전하면</strong> AI가 웹사이트를 만들어 줍니다.<br />
-        사주를 읽듯, <em>바이브(기운)</em>를 전달하는 새로운 방식이에요.
-      </p>
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="#intro" class="px-8 py-4 rounded-full bg-gradient-to-r from-saju-crimson to-saju-purple text-white font-medium hover:opacity-90 transition shadow-lg shadow-saju-crimson/30">
-          시작하기
-        </a>
-        <a href="#practice" class="px-8 py-4 rounded-full glass text-saju-goldLight font-medium hover:border-saju-gold/40 transition">
-          바로 실습해보기
-        </a>
-      </div>
-      <div class="mt-16 animate-float">
-        <div class="w-16 h-16 mx-auto rounded-full border border-saju-gold/30 flex items-center justify-center">
-          <span class="text-3xl">☯</span>
-        </div>
-        <p class="text-xs text-gray-500 mt-3">아래로 스크롤하세요</p>
-      </div>
-    </div>
-  </header>
-
-  <!-- 바이브 코딩 소개 -->
-  <section id="intro" class="relative py-24 px-4">
-    <div class="max-w-5xl mx-auto">
-      <div class="section-reveal text-center mb-16">
-        <h2 class="font-serif text-3xl md:text-4xl font-bold gradient-text mb-4">사주와 바이브 코딩, 닮은 점</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto">둘 다 <strong class="text-saju-goldLight">느낌과 맥락</strong>을 전달하는 일이에요</p>
-      </div>
-
-      <div class="grid md:grid-cols-3 gap-6">
-        <div class="section-reveal glass rounded-2xl p-8 hover:border-saju-gold/30 transition">
-          <div class="text-4xl mb-4">🔮</div>
-          <h3 class="font-serif text-xl font-semibold text-saju-goldLight mb-3">사주 풀이</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">
-            "이 분은 <em>목(木) 기운</em>이 강하고, 올해는 <em>화(火)의 해</em>예요" — 경험과 직감으로 해석해요.
+      <!-- Slide 1: 표지 -->
+      <section class="slide active" data-slide="0">
+        <span class="hanja-deco absolute top-[8%] right-[6%] text-[clamp(4rem,12vw,9rem)]">道</span>
+        <span class="hanja-deco absolute bottom-[12%] left-[4%] text-[clamp(3rem,10vw,7rem)]">氣</span>
+        <div class="slide-body items-center justify-center text-center relative z-10">
+          <p class="text-saju-gold text-xs tracking-[0.4em] mb-3 uppercase">Vibe Coding Guide</p>
+          <h1 class="font-serif font-bold leading-tight mb-4" style="font-size: clamp(2rem, 4.5vw, 3.5rem)">
+            <span class="gradient-text">바이브 코딩</span>
+          </h1>
+          <p class="text-gray-300 max-w-lg mx-auto" style="font-size: clamp(0.9rem, 1.6vw, 1.15rem); line-height: 1.7">
+            코딩을 몰라도 괜찮아요.<br />
+            <strong class="text-saju-goldLight">말로 느낌을 전하면</strong> AI가 웹사이트를 만들어 줍니다.
           </p>
+          <div class="mt-8 w-14 h-14 rounded-full border border-saju-gold/30 flex items-center justify-center text-2xl">☯</div>
         </div>
-        <div class="section-reveal glass rounded-2xl p-8 hover:border-saju-gold/30 transition" style="transition-delay: 0.1s">
-          <div class="text-4xl mb-4">✨</div>
-          <h3 class="font-serif text-xl font-semibold text-saju-goldLight mb-3">바이브 코딩</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">
-            "사주 홈페이지 느낌으로, 보라색에 금색 포인트, 부드럽게" — AI에게 <em>느낌</em>을 말해요.
-          </p>
-        </div>
-        <div class="section-reveal glass rounded-2xl p-8 hover:border-saju-gold/30 transition" style="transition-delay: 0.2s">
-          <div class="text-4xl mb-4">🌙</div>
-          <h3 class="font-serif text-xl font-semibold text-saju-goldLight mb-3">공통점</h3>
-          <p class="text-gray-400 text-sm leading-relaxed">
-            정확한 전문 용어보다 <em>의도와 분위기</em>를 전달하면 결과가 나와요. 완벽하지 않아도 시작하면 돼요!
-          </p>
-        </div>
-      </div>
+        <span class="slide-num">1 / 10</span>
+      </section>
 
-      <!-- 4단계 흐름 -->
-      <div class="section-reveal mt-20">
-        <h3 class="font-serif text-2xl text-center text-saju-goldLight mb-10">바이브 코딩 4단계</h3>
-        <div class="flex flex-col md:flex-row items-center justify-between gap-4 relative">
-          <div class="hidden md:block absolute top-8 left-[12%] right-[12%] h-0.5 bg-gradient-to-r from-transparent via-saju-gold/30 to-transparent"></div>
-          <div class="step-card flex flex-col items-center text-center z-10" data-step="1">
-            <div class="w-16 h-16 rounded-full glass flex items-center justify-center text-2xl mb-3 border-2 border-saju-gold/40">💭</div>
-            <p class="font-medium text-saju-goldLight">1. 느낌 정하기</p>
+      <!-- Slide 2: 바이브 코딩이란 -->
+      <section class="slide" data-slide="1">
+        <span class="hanja-deco absolute top-[5%] left-[3%] text-[clamp(3rem,8vw,6rem)]">玄</span>
+        <h2 class="slide-title gradient-text relative z-10">바이브 코딩이란?</h2>
+        <p class="slide-sub relative z-10">Vibe = 분위기, 느낌. 코딩을 몰라도 시작할 수 있는 새로운 방식</p>
+        <div class="slide-body relative z-10 grid grid-cols-2 gap-4">
+          <div class="glass rounded-xl p-4 flex flex-col justify-center">
+            <p class="text-saju-gold text-xs mb-2 font-medium">기존 코딩</p>
+            <ul class="bullet-list">
+              <li>프로그래밍 언어를 직접 배워야 함</li>
+              <li>문법 하나 틀리면 오류 발생</li>
+              <li>시간이 오래 걸림</li>
+            </ul>
+          </div>
+          <div class="glass rounded-xl p-4 flex flex-col justify-center border-saju-gold/30">
+            <p class="text-saju-goldLight text-xs mb-2 font-medium">바이브 코딩 ✨</p>
+            <ul class="bullet-list">
+              <li>한국어로 "이런 느낌으로" 말하면 됨</li>
+              <li>AI(Cursor)가 코드를 대신 작성</li>
+              <li>빠르게 결과물을 볼 수 있음</li>
+            </ul>
+          </div>
+        </div>
+        <span class="slide-num">2 / 10</span>
+      </section>
+
+      <!-- Slide 3: 4단계 -->
+      <section class="slide" data-slide="2">
+        <h2 class="slide-title gradient-text">바이브 코딩 4단계</h2>
+        <p class="slide-sub">이 순서만 기억하면 충분해요</p>
+        <div class="slide-body grid grid-cols-4 gap-3 items-center">
+          <div class="glass rounded-xl p-3 text-center">
+            <div class="text-2xl mb-2">💭</div>
+            <p class="text-saju-goldLight font-medium text-sm">1. 느낌 정하기</p>
             <p class="text-xs text-gray-500 mt-1">어떤 사이트인지 상상</p>
           </div>
-          <div class="step-card flex flex-col items-center text-center z-10" data-step="2">
-            <div class="w-16 h-16 rounded-full glass flex items-center justify-center text-2xl mb-3 border-2 border-saju-gold/40">💬</div>
-            <p class="font-medium text-saju-goldLight">2. AI에게 말하기</p>
+          <div class="glass rounded-xl p-3 text-center">
+            <div class="text-2xl mb-2">💬</div>
+            <p class="text-saju-goldLight font-medium text-sm">2. AI에게 말하기</p>
             <p class="text-xs text-gray-500 mt-1">Cursor에 프롬프트 입력</p>
           </div>
-          <div class="step-card flex flex-col items-center text-center z-10" data-step="3">
-            <div class="w-16 h-16 rounded-full glass flex items-center justify-center text-2xl mb-3 border-2 border-saju-gold/40">👀</div>
-            <p class="font-medium text-saju-goldLight">3. 결과 확인</p>
+          <div class="glass rounded-xl p-3 text-center">
+            <div class="text-2xl mb-2">👀</div>
+            <p class="text-saju-goldLight font-medium text-sm">3. 결과 확인</p>
             <p class="text-xs text-gray-500 mt-1">만들어진 화면 보기</p>
           </div>
-          <div class="step-card flex flex-col items-center text-center z-10" data-step="4">
-            <div class="w-16 h-16 rounded-full glass flex items-center justify-center text-2xl mb-3 border-2 border-saju-gold/40">🌐</div>
-            <p class="font-medium text-saju-goldLight">4. 세상에 공유</p>
+          <div class="glass rounded-xl p-3 text-center">
+            <div class="text-2xl mb-2">🌐</div>
+            <p class="text-saju-goldLight font-medium text-sm">4. 세상에 공유</p>
             <p class="text-xs text-gray-500 mt-1">Vercel로 링크 만들기</p>
           </div>
         </div>
-      </div>
-    </div>
-  </section>
+        <span class="slide-num">3 / 10</span>
+      </section>
 
-  <!-- 도구 3가지 -->
-  <section id="tools" class="relative py-24 px-4 bg-saju-deeper/50">
-    <div class="max-w-5xl mx-auto">
-      <div class="section-reveal text-center mb-16">
-        <h2 class="font-serif text-3xl md:text-4xl font-bold gradient-text mb-4">알아두면 좋은 도구 3가지</h2>
-        <p class="text-gray-400">어려운 이름이지만, 역할은 아주 단순해요</p>
-      </div>
-
-      <div class="space-y-6">
-        <!-- Cursor AI -->
-        <div class="section-reveal tool-card glass rounded-2xl overflow-hidden" data-tool="cursor">
-          <button class="tool-toggle w-full flex items-center justify-between p-6 md:p-8 text-left hover:bg-white/5 transition">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-saju-purple to-saju-crimson flex items-center justify-center text-2xl shrink-0">🤖</div>
-              <div>
-                <h3 class="font-serif text-xl font-semibold text-saju-goldLight">Cursor AI</h3>
-                <p class="text-sm text-gray-400">똑똑한 코딩 조수 — 사주 선생님 같은 존재</p>
-              </div>
+      <!-- Slide 4: Cursor AI -->
+      <section class="slide" data-slide="3">
+        <span class="hanja-deco absolute bottom-[8%] right-[5%] text-[clamp(3rem,8vw,6rem)]">智</span>
+        <div class="slide-body grid grid-cols-5 gap-5 items-center relative z-10">
+          <div class="col-span-2 flex justify-center">
+            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-saju-purple to-saju-crimson flex items-center justify-center text-5xl shadow-lg">🤖</div>
+          </div>
+          <div class="col-span-3">
+            <h2 class="slide-title gradient-text">Cursor AI</h2>
+            <p class="text-saju-gold text-sm mb-3">똑똑한 코딩 조수</p>
+            <ul class="bullet-list mb-4">
+              <li>옆에서 "이렇게 하면 돼요" 알려주는 <strong class="text-saju-goldLight">개인 비서</strong></li>
+              <li>"이런 느낌의 홈페이지 만들어줘" → AI가 코드 작성</li>
+              <li>한국어로 대화 가능, 무료로 시작</li>
+            </ul>
+            <div class="glass rounded-lg p-3 text-sm text-gray-300">
+              <strong class="text-saju-gold">설치:</strong>
+              <a href="https://cursor.com" target="_blank" class="text-saju-goldLight underline">cursor.com</a>
+              → Download → 가입 → 완료!
             </div>
-            <svg class="tool-arrow w-6 h-6 text-saju-gold transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          <div class="tool-content hidden px-6 md:px-8 pb-8">
-            <div class="border-t border-saju-gold/10 pt-6 grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 class="text-saju-gold text-sm font-medium mb-2">쉬운 비유</h4>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                  사주 공부할 때 옆에서 "이건 이렇게 보면 돼요" 알려주는 <strong>개인 선생님</strong>이에요.
-                  "이런 느낌의 홈페이지 만들어줘"라고 말하면, AI가 코드를 짜 줍니다.
-                </p>
-              </div>
-              <div>
-                <h4 class="text-saju-gold text-sm font-medium mb-2">설치 방법</h4>
-                <ol class="text-gray-300 text-sm space-y-2 list-decimal list-inside">
-                  <li><a href="https://cursor.com" target="_blank" rel="noopener" class="text-saju-goldLight underline hover:no-underline">cursor.com</a> 접속</li>
-                  <li>Download 클릭 → 설치 파일 실행</li>
-                  <li>이메일로 가입 (무료로 시작 가능)</li>
-                  <li>한국어로 대화하면 됩니다!</li>
-                </ol>
+          </div>
+        </div>
+        <span class="slide-num">4 / 10</span>
+      </section>
+
+      <!-- Slide 5: Node.js -->
+      <section class="slide" data-slide="4">
+        <div class="slide-body grid grid-cols-5 gap-5 items-center relative z-10">
+          <div class="col-span-2 flex justify-center">
+            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-saju-jade to-green-900 flex items-center justify-center text-5xl shadow-lg">⚙️</div>
+          </div>
+          <div class="col-span-3">
+            <h2 class="slide-title gradient-text">Node.js</h2>
+            <p class="text-saju-gold text-sm mb-3">컴퓨터 안의 엔진</p>
+            <ul class="bullet-list mb-4">
+              <li>웹사이트를 만드는 도구들이 <strong class="text-saju-goldLight">돌아가게 해주는 엔진</strong></li>
+              <li>직접 코드를 안 써도, 설치만 해두면 AI가 알아서 사용</li>
+              <li>한 번만 설치하면 계속 쓸 수 있어요</li>
+            </ul>
+            <div class="glass rounded-lg p-3 text-sm text-gray-300">
+              <strong class="text-saju-gold">설치:</strong>
+              <a href="https://nodejs.org" target="_blank" class="text-saju-goldLight underline">nodejs.org</a>
+              → <strong>LTS</strong> (초록 버튼) → Next만 눌러도 OK
+            </div>
+          </div>
+        </div>
+        <span class="slide-num">5 / 10</span>
+      </section>
+
+      <!-- Slide 6: Vercel -->
+      <section class="slide" data-slide="5">
+        <div class="slide-body grid grid-cols-5 gap-5 items-center relative z-10">
+          <div class="col-span-2 flex justify-center">
+            <div class="w-24 h-24 rounded-2xl bg-gradient-to-br from-gray-700 to-gray-900 border border-white/10 flex items-center justify-center text-5xl shadow-lg">🌐</div>
+          </div>
+          <div class="col-span-3">
+            <h2 class="slide-title gradient-text">Vercel</h2>
+            <p class="text-saju-gold text-sm mb-3">웹사이트를 세상에 보여주는 창문</p>
+            <ul class="bullet-list mb-4">
+              <li>만든 웹사이트에 <strong class="text-saju-goldLight">주소(링크)</strong>를 붙여 줌</li>
+              <li>카카오톡으로 링크 공유 → 누구나 접속 가능</li>
+              <li>무료! GitHub와 연동하면 자동 배포</li>
+            </ul>
+            <div class="glass rounded-lg p-3 text-sm text-gray-300">
+              <strong class="text-saju-gold">사용:</strong>
+              <a href="https://vercel.com" target="_blank" class="text-saju-goldLight underline">vercel.com</a>
+              가입 → GitHub 연결 → Deploy → <code class="bg-black/30 px-1 rounded text-xs">xxx.vercel.app</code>
+            </div>
+          </div>
+        </div>
+        <span class="slide-num">6 / 10</span>
+      </section>
+
+      <!-- Slide 7: 프롬프트 팁 -->
+      <section class="slide" data-slide="6">
+        <h2 class="slide-title gradient-text">잘 되는 프롬프트 3가지 비결</h2>
+        <p class="slide-sub">AI에게 말할 때 이 세 가지를 포함해 보세요</p>
+        <div class="slide-body grid grid-cols-3 gap-4">
+          <div class="glass rounded-xl p-5 text-center flex flex-col justify-center">
+            <p class="text-3xl mb-3">🎯</p>
+            <p class="font-medium text-saju-goldLight mb-2">목표를 말하기</p>
+            <p class="text-xs text-gray-400 leading-relaxed">"소개 페이지", "예약 페이지"처럼 <strong>무엇을</strong> 만들지</p>
+          </div>
+          <div class="glass rounded-xl p-5 text-center flex flex-col justify-center">
+            <p class="text-3xl mb-3">🎨</p>
+            <p class="font-medium text-saju-goldLight mb-2">느낌을 말하기</p>
+            <p class="text-xs text-gray-400 leading-relaxed">"깔끔한", "따뜻한", "금색 포인트" 같은 <strong>분위기</strong></p>
+          </div>
+          <div class="glass rounded-xl p-5 text-center flex flex-col justify-center">
+            <p class="text-3xl mb-3">📱</p>
+            <p class="font-medium text-saju-goldLight mb-2">상황을 말하기</p>
+            <p class="text-xs text-gray-400 leading-relaxed">"모바일에서도 잘 보이게", "글씨 크게" 같은 <strong>조건</strong></p>
+          </div>
+        </div>
+        <span class="slide-num">7 / 10</span>
+      </section>
+
+      <!-- Slide 8: 실습 -->
+      <section class="slide" data-slide="7">
+        <h2 class="slide-title gradient-text">직접 해보기 — 첫 프롬프트</h2>
+        <p class="slide-sub">예시를 눌러보거나 직접 써 보세요</p>
+        <div class="slide-body grid grid-cols-2 gap-4 min-h-0">
+          <div class="flex flex-col min-h-0">
+            <div class="flex flex-wrap gap-1.5 mb-2">
+              <button class="prompt-example text-[10px] px-2 py-1 rounded-full glass hover:border-saju-gold/40" data-prompt="소개 페이지를 만들어줘. 보라색 배경에 금색 포인트, 부드럽고 세련된 느낌으로">소개 페이지</button>
+              <button class="prompt-example text-[10px] px-2 py-1 rounded-full glass hover:border-saju-gold/40" data-prompt="연락처와 일정이 있는 모임 소개 페이지. 따뜻한 느낌, 읽기 쉽게">모임 소개</button>
+              <button class="prompt-example text-[10px] px-2 py-1 rounded-full glass hover:border-saju-gold/40" data-prompt="간단한 랜딩 페이지. 큰 제목, 버튼 크게, 모바일에서도 잘 보이게">랜딩 페이지</button>
+            </div>
+            <textarea id="promptInput" rows="3" placeholder="예: 예약 페이지를 만들어줘. 차분한 색감, 예약 버튼 크게..." class="flex-1 w-full bg-black/30 border border-saju-gold/20 rounded-lg p-3 text-xs text-gray-200 placeholder-gray-500 focus:outline-none focus:border-saju-gold/50 resize-none min-h-[60px]"></textarea>
+            <button id="simulateBtn" class="mt-2 py-2 rounded-lg bg-gradient-to-r from-saju-crimson to-saju-purple text-white text-sm font-medium hover:opacity-90">AI에게 보내기 (체험)</button>
+          </div>
+          <div class="flex flex-col min-h-0">
+            <div id="aiResponse" class="flex-1 bg-black/40 rounded-lg p-3 text-xs text-gray-300 leading-relaxed font-mono overflow-y-auto min-h-[80px]">
+              <span class="text-gray-500">프롬프트를 쓰고 보내기를 눌러보세요...</span>
+            </div>
+            <div id="previewCard" class="hidden mt-2 rounded-lg overflow-hidden border border-saju-gold/20 shrink-0">
+              <div class="h-12 bg-gradient-to-br from-saju-purple to-saju-dark flex items-center justify-center text-lg">✨</div>
+              <div class="p-2 bg-saju-deeper">
+                <p id="previewTitle" class="font-serif text-saju-goldLight text-sm font-semibold"></p>
+                <p id="previewDesc" class="text-[10px] text-gray-400"></p>
               </div>
             </div>
           </div>
         </div>
+        <span class="slide-num">8 / 10</span>
+      </section>
 
-        <!-- Node.js -->
-        <div class="section-reveal tool-card glass rounded-2xl overflow-hidden" data-tool="node">
-          <button class="tool-toggle w-full flex items-center justify-between p-6 md:p-8 text-left hover:bg-white/5 transition">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-saju-jade to-green-800 flex items-center justify-center text-2xl shrink-0">⚙️</div>
-              <div>
-                <h3 class="font-serif text-xl font-semibold text-saju-goldLight">Node.js</h3>
-                <p class="text-sm text-gray-400">컴퓨터 안의 엔진 — 만물의 기운(氣) 같은 것</p>
-              </div>
-            </div>
-            <svg class="tool-arrow w-6 h-6 text-saju-gold transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          <div class="tool-content hidden px-6 md:px-8 pb-8">
-            <div class="border-t border-saju-gold/10 pt-6 grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 class="text-saju-gold text-sm font-medium mb-2">쉬운 비유</h4>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                  사주 프로그램이 돌아가려면 '기운'이 필요하죠? Node.js는 웹사이트를 만드는 도구들이
-                  <strong>돌아가게 해주는 엔진</strong>이에요. 직접 코드를 안 써도, 설치만 해두면 AI가 알아서 씁니다.
-                </p>
-              </div>
-              <div>
-                <h4 class="text-saju-gold text-sm font-medium mb-2">설치 방법</h4>
-                <ol class="text-gray-300 text-sm space-y-2 list-decimal list-inside">
-                  <li><a href="https://nodejs.org" target="_blank" rel="noopener" class="text-saju-goldLight underline hover:no-underline">nodejs.org</a> 접속</li>
-                  <li><strong>LTS</strong> (안정 버전) 다운로드 — 초록색 버튼</li>
-                  <li>설치 시 "Next"만 눌러도 OK</li>
-                  <li>설치 확인: 터미널에 <code class="bg-black/30 px-1 rounded">node -v</code> 입력</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Vercel -->
-        <div class="section-reveal tool-card glass rounded-2xl overflow-hidden" data-tool="vercel">
-          <button class="tool-toggle w-full flex items-center justify-between p-6 md:p-8 text-left hover:bg-white/5 transition">
-            <div class="flex items-center gap-4">
-              <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-gray-700 to-gray-900 flex items-center justify-center text-2xl shrink-0 border border-white/10">🌐</div>
-              <div>
-                <h3 class="font-serif text-xl font-semibold text-saju-goldLight">Vercel</h3>
-                <p class="text-sm text-gray-400">웹사이트를 세상에 보여주는 창문</p>
-              </div>
-            </div>
-            <svg class="tool-arrow w-6 h-6 text-saju-gold transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </button>
-          <div class="tool-content hidden px-6 md:px-8 pb-8">
-            <div class="border-t border-saju-gold/10 pt-6 grid md:grid-cols-2 gap-6">
-              <div>
-                <h4 class="text-saju-gold text-sm font-medium mb-2">쉬운 비유</h4>
-                <p class="text-gray-300 text-sm leading-relaxed">
-                  사주 카페를 차렸는데 손님이 못 오면 의미가 없죠? Vercel은 만든 웹사이트에
-                  <strong>주소(링크)</strong>를 붙여서, 카카오톡으로 공유할 수 있게 해 줍니다. 무료예요!
-                </p>
-              </div>
-              <div>
-                <h4 class="text-saju-gold text-sm font-medium mb-2">사용 방법</h4>
-                <ol class="text-gray-300 text-sm space-y-2 list-decimal list-inside">
-                  <li><a href="https://vercel.com" target="_blank" rel="noopener" class="text-saju-goldLight underline hover:no-underline">vercel.com</a> 가입 (GitHub 연동 추천)</li>
-                  <li>프로젝트 폴더를 Vercel에 연결</li>
-                  <li>Deploy 버튼 클릭</li>
-                  <li><code class="bg-black/30 px-1 rounded">xxx.vercel.app</code> 링크가 생김!</li>
-                </ol>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- 실습 섹션 -->
-  <section id="practice" class="relative py-24 px-4">
-    <div class="max-w-5xl mx-auto">
-      <div class="section-reveal text-center mb-16">
-        <h2 class="font-serif text-3xl md:text-4xl font-bold gradient-text mb-4">직접 해보기</h2>
-        <p class="text-gray-400">아래에서 바이브 코딩을 체험해 보세요</p>
-      </div>
-
-      <!-- 진행 표시 -->
-      <div class="section-reveal flex justify-center gap-3 mb-12" id="progressDots">
-        <div class="progress-dot w-3 h-3 rounded-full bg-gray-600 transition" data-step="0"></div>
-        <div class="progress-dot w-3 h-3 rounded-full bg-gray-600 transition" data-step="1"></div>
-        <div class="progress-dot w-3 h-3 rounded-full bg-gray-600 transition" data-step="2"></div>
-        <div class="progress-dot w-3 h-3 rounded-full bg-gray-600 transition" data-step="3"></div>
-      </div>
-
-      <div class="grid lg:grid-cols-2 gap-8">
-        <!-- 프롬프트 실습 -->
-        <div class="section-reveal glass rounded-2xl p-6 md:p-8">
-          <h3 class="font-serif text-xl text-saju-goldLight mb-2">📝 첫 프롬프트 써보기</h3>
-          <p class="text-sm text-gray-400 mb-4">아래 예시를 참고해서, AI에게 말할 문장을 써 보세요</p>
-
-          <div class="flex flex-wrap gap-2 mb-4">
-            <button class="prompt-example text-xs px-3 py-1.5 rounded-full glass hover:border-saju-gold/40 transition" data-prompt="사주 홈페이지를 만들어줘. 보라색 배경에 금색 포인트, 부드럽고 신비로운 느낌으로">
-              사주 홈페이지
-            </button>
-            <button class="prompt-example text-xs px-3 py-1.5 rounded-full glass hover:border-saju-gold/40 transition" data-prompt="오늘의 운세를 보여주는 간단한 페이지. 큰 글씨, 읽기 쉽게, 모바일에서도 잘 보이게">
-              오늘의 운세
-            </button>
-            <button class="prompt-example text-xs px-3 py-1.5 rounded-full glass hover:border-saju-gold/40 transition" data-prompt="사주 스터디 모임 소개 페이지. 따뜻한 느낌, 연락처와 모임 일정 포함">
-              스터디 소개
-            </button>
-          </div>
-
-          <textarea
-            id="promptInput"
-            rows="4"
-            placeholder="예: 사주 상담 예약 페이지를 만들어줘. 차분한 색감, 예약 버튼 크게..."
-            class="w-full bg-black/30 border border-saju-gold/20 rounded-xl p-4 text-sm text-gray-200 placeholder-gray-500 focus:outline-none focus:border-saju-gold/50 resize-none"
-          ></textarea>
-          <button id="simulateBtn" class="mt-4 w-full py-3 rounded-xl bg-gradient-to-r from-saju-crimson to-saju-purple text-white font-medium hover:opacity-90 transition">
-            AI에게 보내기 (체험)
-          </button>
-        </div>
-
-        <!-- AI 응답 시뮬레이션 -->
-        <div class="section-reveal glass rounded-2xl p-6 md:p-8">
-          <h3 class="font-serif text-xl text-saju-goldLight mb-2">🤖 AI 응답 미리보기</h3>
-          <p class="text-sm text-gray-400 mb-4">실제 Cursor에서는 이런 식으로 결과가 나와요</p>
-          <div id="aiResponse" class="bg-black/40 rounded-xl p-4 min-h-[200px] text-sm text-gray-300 leading-relaxed font-mono">
-            <span class="text-gray-500">왼쪽에 프롬프트를 쓰고 "AI에게 보내기"를 눌러보세요...</span>
-          </div>
-          <div id="previewCard" class="hidden mt-4 rounded-xl overflow-hidden border border-saju-gold/20">
-            <div class="h-24 bg-gradient-to-br from-saju-purple to-saju-dark flex items-center justify-center">
-              <span class="text-2xl">🔮</span>
-            </div>
-            <div class="p-4 bg-saju-deeper">
-              <p id="previewTitle" class="font-serif text-saju-goldLight font-semibold"></p>
-              <p id="previewDesc" class="text-xs text-gray-400 mt-1"></p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 설치 체크리스트 -->
-      <div class="section-reveal mt-12 glass rounded-2xl p-6 md:p-8">
-        <h3 class="font-serif text-xl text-saju-goldLight mb-6">✅ 준비물 체크리스트</h3>
-        <p class="text-sm text-gray-400 mb-6">하나씩 체크해 보세요. 다 되면 바이브 코딩을 시작할 수 있어요!</p>
-        <div class="space-y-3" id="checklist">
-          <label class="check-item flex items-center gap-4 p-4 rounded-xl bg-black/20 cursor-pointer hover:bg-black/30 transition">
-            <input type="checkbox" class="check-box w-5 h-5 rounded accent-saju-gold" data-id="cursor" />
-            <span class="flex-1">Cursor AI 설치 완료 (<a href="https://cursor.com" target="_blank" class="text-saju-goldLight underline">cursor.com</a>)</span>
+      <!-- Slide 9: 체크리스트 -->
+      <section class="slide" data-slide="8">
+        <h2 class="slide-title gradient-text">준비물 체크리스트</h2>
+        <p class="slide-sub">하나씩 체크해 보세요</p>
+        <div class="slide-body grid grid-cols-2 gap-3 content-center">
+          <label class="check-item glass rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-saju-gold/30">
+            <input type="checkbox" class="check-box w-5 h-5 accent-saju-gold shrink-0" data-id="cursor" />
+            <span class="text-sm">Cursor AI 설치 (<a href="https://cursor.com" target="_blank" class="text-saju-goldLight underline">cursor.com</a>)</span>
           </label>
-          <label class="check-item flex items-center gap-4 p-4 rounded-xl bg-black/20 cursor-pointer hover:bg-black/30 transition">
-            <input type="checkbox" class="check-box w-5 h-5 rounded accent-saju-gold" data-id="node" />
-            <span class="flex-1">Node.js 설치 완료 (<a href="https://nodejs.org" target="_blank" class="text-saju-goldLight underline">nodejs.org</a> — LTS 버전)</span>
+          <label class="check-item glass rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-saju-gold/30">
+            <input type="checkbox" class="check-box w-5 h-5 accent-saju-gold shrink-0" data-id="node" />
+            <span class="text-sm">Node.js 설치 (<a href="https://nodejs.org" target="_blank" class="text-saju-goldLight underline">nodejs.org</a> LTS)</span>
           </label>
-          <label class="check-item flex items-center gap-4 p-4 rounded-xl bg-black/20 cursor-pointer hover:bg-black/30 transition">
-            <input type="checkbox" class="check-box w-5 h-5 rounded accent-saju-gold" data-id="vercel" />
-            <span class="flex-1">Vercel 가입 완료 (<a href="https://vercel.com" target="_blank" class="text-saju-goldLight underline">vercel.com</a>)</span>
+          <label class="check-item glass rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-saju-gold/30">
+            <input type="checkbox" class="check-box w-5 h-5 accent-saju-gold shrink-0" data-id="vercel" />
+            <span class="text-sm">Vercel 가입 (<a href="https://vercel.com" target="_blank" class="text-saju-goldLight underline">vercel.com</a>)</span>
           </label>
-          <label class="check-item flex items-center gap-4 p-4 rounded-xl bg-black/20 cursor-pointer hover:bg-black/30 transition">
-            <input type="checkbox" class="check-box w-5 h-5 rounded accent-saju-gold" data-id="prompt" />
-            <span class="flex-1">첫 프롬프트를 써 봤어요 (위 실습 완료)</span>
+          <label class="check-item glass rounded-xl p-4 flex items-center gap-3 cursor-pointer hover:border-saju-gold/30">
+            <input type="checkbox" class="check-box w-5 h-5 accent-saju-gold shrink-0" data-id="prompt" />
+            <span class="text-sm">첫 프롬프트를 써 봤어요</span>
           </label>
         </div>
-        <div id="checklistComplete" class="hidden mt-6 p-4 rounded-xl bg-saju-jade/20 border border-saju-jade/40 text-center">
-          <p class="text-saju-goldLight font-medium">🎉 축하해요! 이제 진짜 바이브 코딩을 시작할 준비가 됐어요!</p>
+        <div id="checklistComplete" class="hidden mt-3 p-3 rounded-xl bg-saju-jade/20 border border-saju-jade/40 text-center text-sm text-saju-goldLight">
+          🎉 축하해요! 바이브 코딩을 시작할 준비가 됐어요!
         </div>
-      </div>
+        <span class="slide-num">9 / 10</span>
+      </section>
 
-      <!-- 프롬프트 팁 -->
-      <div class="section-reveal mt-12">
-        <h3 class="font-serif text-xl text-saju-goldLight mb-6 text-center">💡 잘 되는 프롬프트 3가지 비결</h3>
-        <div class="grid md:grid-cols-3 gap-4">
-          <div class="glass rounded-xl p-5 text-center">
-            <p class="text-2xl mb-2">🎯</p>
-            <p class="font-medium text-saju-goldLight text-sm mb-1">목표를 말하기</p>
-            <p class="text-xs text-gray-400">"사주 상담 예약 페이지"처럼 무엇을 만들지</p>
+      <!-- Slide 10: 공유 & 마무리 -->
+      <section class="slide" data-slide="9">
+        <span class="hanja-deco absolute top-[10%] left-[8%] text-[clamp(3rem,8vw,6rem)]">緣</span>
+        <div class="slide-body items-center text-center relative z-10">
+          <h2 class="slide-title gradient-text mb-2">공유하기</h2>
+          <p class="text-sm text-gray-400 mb-5">이 링크를 내면 누구나 볼 수 있어요</p>
+          <div class="glass rounded-xl p-4 max-w-md mx-auto w-full mb-5">
+            <div class="flex gap-2">
+              <input id="shareUrl" type="text" readonly class="flex-1 bg-black/30 border border-saju-gold/20 rounded-lg px-3 py-2 text-xs text-gray-300 focus:outline-none" />
+              <button id="copyBtn" class="px-4 py-2 rounded-lg bg-saju-gold text-saju-dark text-sm font-medium hover:bg-saju-goldLight shrink-0">복사</button>
+            </div>
+            <p id="copyToast" class="hidden text-saju-jade text-xs mt-2">✓ 링크가 복사됐어요!</p>
           </div>
-          <div class="glass rounded-xl p-5 text-center">
-            <p class="text-2xl mb-2">🎨</p>
-            <p class="font-medium text-saju-goldLight text-sm mb-1">느낌을 말하기</p>
-            <p class="text-xs text-gray-400">"신비롭고 따뜻한", "금색 포인트"</p>
-          </div>
-          <div class="glass rounded-xl p-5 text-center">
-            <p class="text-2xl mb-2">📱</p>
-            <p class="font-medium text-saju-goldLight text-sm mb-1">상황을 말하기</p>
-            <p class="text-xs text-gray-400">"모바일에서도 잘 보이게", "글씨 크게"</p>
-          </div>
+          <p class="font-serif text-saju-goldLight text-lg">바이브 코딩, 오늘부터 시작해 보세요 ✨</p>
+          <p class="text-xs text-gray-500 mt-3">← → 키 또는 아래 버튼으로 슬라이드 이동</p>
         </div>
-      </div>
+        <span class="slide-num">10 / 10</span>
+      </section>
     </div>
-  </section>
 
-  <!-- 공유하기 -->
-  <section id="share" class="relative py-24 px-4 bg-saju-deeper/50">
-    <div class="max-w-3xl mx-auto section-reveal text-center">
-      <h2 class="font-serif text-3xl md:text-4xl font-bold gradient-text mb-4">이 사이트 공유하기</h2>
-      <p class="text-gray-400 mb-8">스터디 멤버들에게 이 링크를 내면, 누구나 바이브 코딩을 배울 수 있어요</p>
-
-      <div class="glass rounded-2xl p-6 md:p-8 mb-8">
-        <p class="text-sm text-gray-400 mb-3">현재 페이지 주소</p>
-        <div class="flex gap-2">
-          <input
-            id="shareUrl"
-            type="text"
-            readonly
-            class="flex-1 bg-black/30 border border-saju-gold/20 rounded-xl px-4 py-3 text-sm text-gray-300 focus:outline-none"
-          />
-          <button id="copyBtn" class="px-6 py-3 rounded-xl bg-saju-gold text-saju-dark font-medium hover:bg-saju-goldLight transition shrink-0">
-            복사
-          </button>
-        </div>
-        <p id="copyToast" class="hidden text-saju-jade text-sm mt-3">✓ 링크가 복사됐어요!</p>
-      </div>
-
-      <div class="glass rounded-2xl p-6 md:p-8 text-left">
-        <h3 class="font-serif text-lg text-saju-goldLight mb-4">🚀 Vercel로 이 사이트 배포하기 (선생님/진행자용)</h3>
-        <ol class="text-sm text-gray-300 space-y-3 list-decimal list-inside">
-          <li>이 폴더를 GitHub에 올립니다</li>
-          <li><a href="https://vercel.com/new" target="_blank" class="text-saju-goldLight underline">vercel.com/new</a>에서 GitHub 저장소를 연결합니다</li>
-          <li>Deploy 버튼을 누르면 <code class="bg-black/30 px-1 rounded">이름.vercel.app</code> 주소가 생깁니다</li>
-          <li>그 링크를 카카오톡 단톡방에 공유하세요!</li>
-        </ol>
-      </div>
+    <!-- 컨트롤 -->
+    <div id="controls">
+      <button id="prevBtn" class="nav-btn" aria-label="이전 슬라이드" disabled>
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <div id="slideDots" class="flex gap-2 flex-wrap justify-center max-w-[60%]"></div>
+      <button id="nextBtn" class="nav-btn" aria-label="다음 슬라이드">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+      </button>
     </div>
-  </section>
-
-  <!-- 푸터 -->
-  <footer class="py-12 px-4 border-t border-saju-gold/10">
-    <div class="max-w-5xl mx-auto text-center">
-      <p class="font-serif text-saju-goldLight text-lg mb-2">바이브 코딩, 사주처럼 느낌으로 시작하세요</p>
-      <p class="text-sm text-gray-500">Made with ✨ for 사주 스터디</p>
-    </div>
-  </footer>
+  </div>
 
   <script src="js/app.js"></script>
 </body>

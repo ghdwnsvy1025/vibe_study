@@ -1,16 +1,95 @@
-// 별 배경 생성
+const TOTAL_SLIDES = 10;
+let currentSlide = 0;
+
+// ── 슬라이드 네비게이션 ──
+function initSlides() {
+  const slides = document.querySelectorAll('.slide');
+  const dotsContainer = document.getElementById('slideDots');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  slides.forEach((_, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'slide-dot' + (i === 0 ? ' active' : '');
+    dot.setAttribute('aria-label', `슬라이드 ${i + 1}`);
+    dot.addEventListener('click', () => goToSlide(i));
+    dotsContainer.appendChild(dot);
+  });
+
+  prevBtn.addEventListener('click', () => goToSlide(currentSlide - 1));
+  nextBtn.addEventListener('click', () => goToSlide(currentSlide + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+      e.preventDefault();
+      goToSlide(currentSlide + 1);
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      goToSlide(currentSlide - 1);
+    } else if (e.key === 'Home') {
+      goToSlide(0);
+    } else if (e.key === 'End') {
+      goToSlide(TOTAL_SLIDES - 1);
+    }
+  });
+
+  let touchStartX = 0;
+  const viewport = document.getElementById('slide-viewport');
+  viewport.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  viewport.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      goToSlide(diff > 0 ? currentSlide + 1 : currentSlide - 1);
+    }
+  }, { passive: true });
+
+  updateSlideUI();
+}
+
+function goToSlide(index) {
+  if (index < 0 || index >= TOTAL_SLIDES) return;
+
+  const slides = document.querySelectorAll('.slide');
+  slides[currentSlide].classList.remove('active');
+  slides[currentSlide].classList.add('prev');
+
+  currentSlide = index;
+
+  slides.forEach((s, i) => {
+    s.classList.toggle('active', i === currentSlide);
+    s.classList.toggle('prev', i < currentSlide);
+  });
+
+  updateSlideUI();
+}
+
+function updateSlideUI() {
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const dots = document.querySelectorAll('.slide-dot');
+
+  prevBtn.disabled = currentSlide === 0;
+  nextBtn.disabled = currentSlide === TOTAL_SLIDES - 1;
+
+  dots.forEach((dot, i) => {
+    dot.classList.remove('active', 'done');
+    if (i === currentSlide) dot.classList.add('active');
+    else if (i < currentSlide) dot.classList.add('done');
+  });
+}
+
+// ── 별 배경 ──
 function createStars() {
   const container = document.getElementById('stars');
   if (!container) return;
-  const count = window.innerWidth < 768 ? 40 : 80;
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < 60; i++) {
     const star = document.createElement('div');
     star.className = 'star';
     star.style.left = `${Math.random() * 100}%`;
     star.style.top = `${Math.random() * 100}%`;
     star.style.animationDelay = `${Math.random() * 4}s`;
     star.style.animationDuration = `${3 + Math.random() * 3}s`;
-    if (Math.random() > 0.7) {
+    if (Math.random() > 0.75) {
       star.style.width = '3px';
       star.style.height = '3px';
     }
@@ -18,135 +97,58 @@ function createStars() {
   }
 }
 
-// 스크롤 시 섹션 등장
-function initScrollReveal() {
-  const reveals = document.querySelectorAll('.section-reveal');
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    },
-    { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-  );
-  reveals.forEach((el) => observer.observe(el));
-}
-
-// 모바일 메뉴
-function initMobileMenu() {
-  const btn = document.getElementById('menuBtn');
-  const menu = document.getElementById('mobileMenu');
-  if (!btn || !menu) return;
-
-  btn.addEventListener('click', () => {
-    menu.classList.toggle('hidden');
-  });
-
-  menu.querySelectorAll('a').forEach((link) => {
-    link.addEventListener('click', () => menu.classList.add('hidden'));
-  });
-}
-
-// 도구 아코디언
-function initToolAccordion() {
-  document.querySelectorAll('.tool-toggle').forEach((toggle) => {
-    toggle.addEventListener('click', () => {
-      const card = toggle.closest('.tool-card');
-      const content = card.querySelector('.tool-content');
-      const arrow = card.querySelector('.tool-arrow');
-      const isOpen = !content.classList.contains('hidden');
-
-      document.querySelectorAll('.tool-content').forEach((c) => c.classList.add('hidden'));
-      document.querySelectorAll('.tool-arrow').forEach((a) => a.classList.remove('rotate-180'));
-
-      if (!isOpen) {
-        content.classList.remove('hidden');
-        arrow.classList.add('rotate-180');
-      }
-    });
-  });
-}
-
-// 4단계 카드 호버 애니메이션
-function initStepCards() {
-  document.querySelectorAll('.step-card').forEach((card) => {
-    card.addEventListener('mouseenter', () => {
-      const circle = card.querySelector('div');
-      circle.classList.add('border-saju-gold', 'shadow-lg', 'shadow-saju-gold/20');
-    });
-    card.addEventListener('mouseleave', () => {
-      const circle = card.querySelector('div');
-      circle.classList.remove('border-saju-gold', 'shadow-lg', 'shadow-saju-gold/20');
-    });
-  });
-}
-
-// 프롬프트 예시 버튼
-function initPromptExamples() {
-  const input = document.getElementById('promptInput');
-  document.querySelectorAll('.prompt-example').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      input.value = btn.dataset.prompt;
-      input.focus();
-    });
-  });
-}
-
-// AI 응답 시뮬레이션
+// ── 프롬프트 실습 ──
 const AI_RESPONSES = {
   default: {
     steps: [
       '프롬프트를 분석하고 있어요...',
-      '사주 테마 색상(보라, 금색)을 적용할게요...',
-      '레이아웃을 구성하고 있어요...',
+      '색상과 레이아웃을 적용할게요...',
       '모바일 반응형도 추가할게요...',
       '✅ 완성! 아래 미리보기를 확인해 보세요.',
     ],
     title: '맞춤 웹페이지',
     desc: '요청하신 느낌으로 페이지가 만들어졌어요',
   },
-  사주: {
+  intro: {
     steps: [
-      '사주 홈페이지 구조를 설계할게요...',
-      '신비로운 보라색 배경 + 금색 포인트 적용...',
-      '오행(五行) 아이콘과 부드러운 애니메이션 추가...',
-      '✅ 사주 홈페이지 초안이 완성됐어요!',
+      '소개 페이지 구조를 설계할게요...',
+      '보라·금 테마 색상 적용...',
+      '부드러운 애니메이션 추가...',
+      '✅ 소개 페이지 초안 완성!',
     ],
-    title: '사주 명리 홈페이지',
-    desc: '보라·금 테마, 신비로운 분위기',
+    title: '소개 페이지',
+    desc: '세련된 분위기, 금색 포인트',
   },
-  운세: {
+  meeting: {
     steps: [
-      '운세 페이지 레이아웃을 만들게요...',
-      '큰 글씨, 읽기 쉬운 폰트 적용...',
-      '모바일 최적화 진행 중...',
-      '✅ 오늘의 운세 페이지 완성!',
+      '모임 소개 레이아웃 구성...',
+      '일정·연락처 섹션 추가...',
+      '따뜻한 색감 적용...',
+      '✅ 모임 소개 페이지 완성!',
     ],
-    title: '오늘의 운세',
-    desc: '큰 글씨, 모바일 친화적 디자인',
+    title: '모임 소개',
+    desc: '일정·연락처 포함',
   },
-  스터디: {
+  landing: {
     steps: [
-      '스터디 소개 페이지 구조 설계...',
-      '따뜻한 색감과 일정 섹션 추가...',
-      '연락처 버튼 배치...',
-      '✅ 스터디 소개 페이지 완성!',
+      '랜딩 페이지 구조 설계...',
+      '큰 제목과 CTA 버튼 배치...',
+      '모바일 최적화 진행...',
+      '✅ 랜딩 페이지 완성!',
     ],
-    title: '사주 스터디 모임',
-    desc: '따뜻한 느낌, 일정·연락처 포함',
+    title: '랜딩 페이지',
+    desc: '큰 글씨, 모바일 친화적',
   },
 };
 
 function detectPromptType(text) {
-  if (text.includes('사주') && (text.includes('홈') || text.includes('페이지'))) return '사주';
-  if (text.includes('운세')) return '운세';
-  if (text.includes('스터디') || text.includes('모임')) return '스터디';
+  if (text.includes('소개') && !text.includes('모임')) return 'intro';
+  if (text.includes('모임') || text.includes('일정')) return 'meeting';
+  if (text.includes('랜딩') || text.includes('버튼')) return 'landing';
   return 'default';
 }
 
-function typeText(element, text, speed = 25) {
+function typeText(element, text, speed = 20) {
   return new Promise((resolve) => {
     let i = 0;
     element.classList.add('typing-cursor');
@@ -162,6 +164,10 @@ function typeText(element, text, speed = 25) {
   });
 }
 
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 async function simulateAI() {
   const input = document.getElementById('promptInput');
   const responseEl = document.getElementById('aiResponse');
@@ -172,7 +178,7 @@ async function simulateAI() {
 
   const prompt = input.value.trim();
   if (!prompt) {
-    responseEl.innerHTML = '<span class="text-saju-crimson">프롬프트를 먼저 써 주세요! 위 예시 버튼을 눌러도 돼요.</span>';
+    responseEl.innerHTML = '<span class="text-red-400">프롬프트를 먼저 써 주세요!</span>';
     return;
   }
 
@@ -181,53 +187,47 @@ async function simulateAI() {
   previewCard.classList.add('hidden');
   responseEl.innerHTML = '';
 
-  const type = detectPromptType(prompt);
-  const data = AI_RESPONSES[type];
+  const data = AI_RESPONSES[detectPromptType(prompt)];
 
   for (const step of data.steps) {
     const line = document.createElement('div');
-    line.className = 'mb-2 text-gray-400';
+    line.className = 'mb-1 text-gray-400';
     responseEl.appendChild(line);
     await typeText(line, step);
-    await sleep(400);
+    await sleep(350);
   }
 
   previewTitle.textContent = data.title;
   previewDesc.textContent = data.desc;
   previewCard.classList.remove('hidden');
-  previewCard.style.animation = 'none';
-  previewCard.offsetHeight;
-  previewCard.style.animation = 'float 0.6s ease';
 
   btn.disabled = false;
   btn.textContent = 'AI에게 보내기 (체험)';
-
-  updateProgress(2);
   markPromptChecked();
 }
 
-function sleep(ms) {
-  return new Promise((r) => setTimeout(r, ms));
+function initPromptExamples() {
+  const input = document.getElementById('promptInput');
+  document.querySelectorAll('.prompt-example').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      input.value = btn.dataset.prompt;
+      input.focus();
+    });
+  });
+  document.getElementById('simulateBtn').addEventListener('click', simulateAI);
 }
 
-// 체크리스트
+// ── 체크리스트 ──
 function initChecklist() {
   const boxes = document.querySelectorAll('.check-box');
   const saved = JSON.parse(localStorage.getItem('vibe-checklist') || '{}');
 
   boxes.forEach((box) => {
-    if (saved[box.dataset.id]) {
-      box.checked = true;
-      box.closest('.check-item').classList.add('opacity-70');
-    }
+    if (saved[box.dataset.id]) box.checked = true;
 
     box.addEventListener('change', () => {
-      const id = box.dataset.id;
-      saved[id] = box.checked;
+      saved[box.dataset.id] = box.checked;
       localStorage.setItem('vibe-checklist', JSON.stringify(saved));
-
-      const item = box.closest('.check-item');
-      item.classList.toggle('opacity-70', box.checked);
       checkAllComplete();
     });
   });
@@ -238,34 +238,18 @@ function initChecklist() {
 function checkAllComplete() {
   const boxes = document.querySelectorAll('.check-box');
   const allChecked = [...boxes].every((b) => b.checked);
-  const completeEl = document.getElementById('checklistComplete');
-  if (allChecked) {
-    completeEl.classList.remove('hidden');
-    updateProgress(3);
-  } else {
-    completeEl.classList.add('hidden');
-  }
+  document.getElementById('checklistComplete').classList.toggle('hidden', !allChecked);
 }
 
 function markPromptChecked() {
-  const promptBox = document.querySelector('.check-box[data-id="prompt"]');
-  if (promptBox && !promptBox.checked) {
-    promptBox.checked = true;
-    promptBox.dispatchEvent(new Event('change'));
+  const box = document.querySelector('.check-box[data-id="prompt"]');
+  if (box && !box.checked) {
+    box.checked = true;
+    box.dispatchEvent(new Event('change'));
   }
 }
 
-// 진행 표시
-function updateProgress(step) {
-  const dots = document.querySelectorAll('.progress-dot');
-  dots.forEach((dot, i) => {
-    dot.classList.remove('active', 'done');
-    if (i < step) dot.classList.add('done');
-    else if (i === step) dot.classList.add('active');
-  });
-}
-
-// 공유 URL
+// ── 공유 ──
 function initShare() {
   const urlInput = document.getElementById('shareUrl');
   const copyBtn = document.getElementById('copyBtn');
@@ -276,54 +260,20 @@ function initShare() {
   copyBtn.addEventListener('click', async () => {
     try {
       await navigator.clipboard.writeText(urlInput.value);
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 2500);
     } catch {
       urlInput.select();
       document.execCommand('copy');
-      toast.classList.remove('hidden');
-      setTimeout(() => toast.classList.add('hidden'), 2500);
     }
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 2500);
   });
 }
 
-// 스크롤 진행도에 따른 dot 업데이트
-function initScrollProgress() {
-  const sections = ['intro', 'tools', 'practice', 'share'];
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const idx = sections.indexOf(entry.target.id);
-          if (idx >= 0) updateProgress(idx);
-        }
-      });
-    },
-    { threshold: 0.3 }
-  );
-
-  sections.forEach((id) => {
-    const el = document.getElementById(id);
-    if (el) observer.observe(el);
-  });
-}
-
-// 시뮬레이션 버튼
-function initSimulate() {
-  document.getElementById('simulateBtn').addEventListener('click', simulateAI);
-}
-
-// 초기화
+// ── 초기화 ──
 document.addEventListener('DOMContentLoaded', () => {
   createStars();
-  initScrollReveal();
-  initMobileMenu();
-  initToolAccordion();
-  initStepCards();
+  initSlides();
   initPromptExamples();
   initChecklist();
   initShare();
-  initScrollProgress();
-  initSimulate();
-  updateProgress(0);
 });
